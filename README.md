@@ -188,6 +188,7 @@ merge method.
 7. create PR
 8. (ALL CHECKS PASS and APPROVERS APPROVE)
 9. Merge PR (and delete PR and local/remote branch)
+10. Clean up local branch
 
 ```bash
 gcl {REPO}
@@ -198,6 +199,8 @@ gcmsg "{type}: {message}"
 ggpush
 gh pr create -t "{type}: {jira-card} {more-text-description}" -b "some notes about the PR for the body"
 gh pr merge -sd {type}/{jira-card}-{more-text-description}
+gco main
+gf --prune
 ```
 
 Where
