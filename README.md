@@ -156,9 +156,10 @@ editor: code --wait
 ### Standard GH PR Workflow
 
 This is "normal" trunk based PR workflow for working with an existing repository
-following the team git standards. Keep all your {text strings} below lower case.
-There's other branching strategies, but this has been the most common in
-workplaces in my experience. Adjust for your type of PR formatting and merge method.
+following some widespreadS git standards. Keep all your {text strings} below
+lower case. There's other branching strategies, but this has been the most
+common in workplaces in my experience. Adjust for your type of PR formatting and
+merge method.
 
 1. clone a repo
 2. create and checkout a branch
