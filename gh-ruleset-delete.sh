@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Usage: ./delete_ruleset.sh <org> <repo> <ruleset_name>
-# Example: ./delete_ruleset.sh ExampleCo MyRepo strict
-
 # Check for required arguments
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 <org> <repo> <ruleset_name>"

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Usage: ./export_ruleset_clean.sh <org> <repo> <ruleset_name>
-# Example: ./export_ruleset_clean.sh HylandSoftware fcc-demo-github-pr-triggers strict > clean_ruleset.json
-
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 <org> <repo> <ruleset_name>"
   exit 1

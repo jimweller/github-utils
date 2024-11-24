@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Usage: ./create_ruleset.sh <org> <repo> <ruleset_name> <ruleset_file>
-# Example: ./create_ruleset.sh ExampleCo MyRepo strict strict-ruleset.json
-
 # Check for required arguments
 if [ "$#" -ne 4 ]; then
   echo "Usage: $0 <org> <repo> <ruleset_name> <ruleset_file>"

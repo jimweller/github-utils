@@ -1,27 +1,42 @@
 # Git Utilities
 
 This is a collection of scripts and notes about using git and github. Its aim is
-to reduce toil and to align with the teams' git standards. It's based on MacOS
-and ohmyzsh aliases. So, you might need to do some translation.
+to reduce toil and to align with a teams' git standards. It's based on
+MacOS/Linux and ohmyzsh aliases. So, you might need to do some translation.
+Also, note I use HTTPS and not SSH (don't judge), YMMV.
 
-- gh-bpr-create.sh - create branch protection rule (opinionated)
-- gh-bpr-delete.sh - delete branch protection rule
-- gh-bpr-update.sh - update branch protection rule (optionated)
-- gh-pr-cycle.sh - Go through a full PR cycle. Pause before merge. Useful for testing github actions.
+Repository Lifecycle Management
+
 - gh-repo-create-from-template.sh - Create a new repository from an github template repository
 - gh-repo-create-push.sh - Create a new repository from an existing repository. Must init, add, and commit first.
 - gh-repo-create.sh - Create a new repository from scratch. Clones after creation.
 - gh-repo-delete.sh - Delete a repository
+
+Repository Editing
+
 - gh-repo-topics.sh - Add one or more topics to a repository. Useful for categorization for searching and filtering.
 - gh-repo-perms-teams.sh - Add/remove team permissions on a repository
 - gh-repo-perms-user.sh - Add/remove user permissions on a repository
 - gh-tag-advance.sh - Move a tag from one commit to another. Useful for testing release strategies.
+
+Branch Protection with Rulesets (new)
+
 - gh-ruleset-export.sh - Export an existing ruleset as json (to stdout)
 - gh-ruleset-import.sh - Import a ruleset from a json file to a repository
 - gh-ruleset-delete.sh - Remove a ruleset from a repository
 - rulesets/ - sample ruleset json files
 
-## Gh Exensions
+PR Simulation
+
+- gh-pr-cycle.sh - Go through a full PR cycle. Pause before merge. Useful for testing github actions.
+
+Clasic branch protection (deprecated for me)
+
+- gh-bpr-create.sh - create branch protection rule (opinionated)
+- gh-bpr-delete.sh - delete branch protection rule
+- gh-bpr-update.sh - update branch protection rule (optionated)
+
+## GH Exensions
 
 See also `gh extension` for handy github plugins
 
@@ -32,9 +47,7 @@ gh open          ream88/gh-open            e30a6172
 gh subscription  poretsky/gh-subscription  de6f865c
 ```
 
-## Jim's Cheat Sheet
-
-(need to cleanup from pandoc conversion)
+## Cheat Sheet
 
 These are some handy commands and processes for working with git and
 github. This assumes you are on a unix command line and
@@ -51,156 +64,140 @@ you're not using ohmyzsh and powerlevel10k...then you should be. If you
 don't use omz, you'll have to use full commands instead of abbreviated
 aliases.
 
-plugins=(git gitignore aliases)
+```bash
+plugins=(git gitignore aliases jump)
+```
 
 You'll also want to make sure the GPG_TTY variable is set in .zshrc or
 signed commits will fail with gpg errors.
 
-export GPG_TTY=\$TTY
+```bash
+export GPG_TTY=$TTY
+```
 
-### Aliases from OhMyZsh, the most common ones
+### Aliases from OhMyZsh, the most common ones I use
+
+Use `als -g git` to see all the git aliases. Make sure you have the omz
+aliases plugin enabled. There's 191 of them!
 
 - **gst** - git status
-- **glog** - git log \--oneline \--decorate \--graph
+- **glog** - git log  --oneline  --decorate  --graph
 - **grf** - git reflog
 - **gcl** {REPO} - git clone
 - **gcb** {BRANCH} - git checkout -b
-- **gav** - git add \--verbose
-- **gc** - git commit \--verbose
-- **gcmsg** - git commit \--message {MSG}
+- **gav** - git add  --verbose
+- **gc** - git commit  --verbose
+- **gcmsg** - git commit  --message {MSG}
 - **ggpush** - git push origin {current_branch}
-- **grbm** - git rebase \$(git_main_branch)
+- **grbm** - git rebase  $(git_main_branch)
 - **grD** - delete local branch
 - **gf** - git fetch
 - **grb** - git rebase
 - **gco** - git checkout
 - **gp** - git push
 - **gl** - pit pull
+- **gsta, gstp, gstc** - git stash push, pop, clear
+- **grs** - git restore
 
-### OMZ Git Aliases, All of them
+I have this alias in my `.zshrc` that does add, commit, and push all in one. You
+can pass it a message or it will use epoch timestamp when I'm lazy.
 
-Use als -g git to see all the git aliases. Make sure you have the omz
-aliases plugin enabled. There's 191 of them!
+```bash
+gj () {
+  MESSAGE=${1:-"$(date +%s)"}
+  git add --verbose . && git commit --message "$MESSAGE" && git push origin "$(git_current_branch)"
+}
+```
 
 ### Setting Visual Studio Code as Your Default Editor
 
 To use vscode with git, edit your .gitconfig
 
-\[core\]
+```bash
+[core]
+  editor = code --wait
 
-editor = code \--wait
+[mergetool "vscodeM"]
+    cmd = code --wait $MERGED
+[merge]
+    tool = vscodeM
 
-\[mergetool \"vscodemerge\"\]
+[difftool "vscodeD"]
+    cmd = code --wait --diff $LOCAL $REMOTE
+[diff]
+    tool = vscodeD
 
-cmd = code \--wait \$MERGED
+[init]
+  defaultBranch = main
 
-\[merge\]
+[user]
+  useConfigOnly=true
 
-tool = vscodemerge
+[pager]
+  branch = false
+```
 
-\[difftool \"vscodediff\"\]
+### What editor gh should run when creating commits, issues, pull requests, etc
 
-cmd = code \--wait \--diff \$LOCAL \$REMOTE
+To use vscode with github's gh cli run
 
-\[diff\]
+```bash
+gh config set editor "code --wait"
+```
 
-tool = vscodediff
+Then you'll see this set in your ~/.config/gh/config.yml
 
-To use vscode with github\'s gh cli run
+If blank, will default to EDITOR environmental variable.
 
-gh config set editor \"code \--wait\"
-
-Then you'll see this set in your \~/.config/gh/config.yml
-
-\# What editor gh should run when creating issues, pull requests, etc.
-If blank, will refer to environment.
-
-editor: code \--wait
+```bash
+editor: code --wait
+```
 
 ### Standard GH PR Workflow
 
-This is the standard workflow for working with an existing repository
-following the team git standards. Keep all your {text strings} below
-lower case.
+This is "normal" trunk based PR workflow for working with an existing repository
+following the team git standards. Keep all your {text strings} below lower case.
+There's other branching strategies, but this has been the most common in
+workplaces in my experience. Adjust for your type of PR formatting and merge method.
 
 1. clone a repo
-
-2. create branch
-
+2. create and checkout a branch
 3. DO CODING WORK
-
 4. add files
-
 5. commit
+6. push
+7. create PR
+8. (ALL CHECKS PASS and APPROVERS APPROVE)
+9. Merge PR (and delete PR and local/remote branch)
 
-6. fetch
-
-7. rebase
-
-8. checkout
-
-9. push
-
-10. create PR
-
-11. ALL CHECKS PASS and APPROVERS APPROVE
-
-12. Merge PR (and delete PR and local/remote branch)
-
+```bash
 gcl {REPO}
-
-gcb {type}/{jira-card}-{more-text-description}
-
-\-\--DO SOME CODING\-\--
-
+gco -b {type}/{jira-card}-{more-text-description}
+---DO SOME CODING---
 gav .
+gcmsg "{type}: {message}"
+ggpush
+gh pr create -t "{type}: {jira-card} {more-text-description}" -b "some notes about the PR for the body"
+gh pr merge -sd {type}/{jira-card}-{more-text-description}
+```
 
-gcmsg \"{type}: {message}\"
-
-gf origin main
-
-grb origin/main
-
-gco {type}/{jira-card}-{more-text-description}
-
-git push \--set-upstream origin
-{type}/{jira-card}-{other-text-description}
-
-gh pr create -t \"{type}: {jira-card} {more-text-description}\" -T
-PULL_REQUEST_TEMPLATE.md
-
-gh pr merge -s -d {type}/{jira-card}-{more-text-description}
+Where
 
 - {type} is one of fix, feat or release
-
 - {jira-card} is the name of a card like enbl-304
-
-- {more-text-description} is narrative about what you are doing like
- update thing-one to make thing-two do thing-three
+- {more-text-description} is narrative about what you are doing like update thing-one to make thing-two do thing-three
 
 Some of the steps aren't strictly necessary for a simple short lived
-task, but running them won't hurt. For example, for example rebasing
-when the main branch hasn't changed.
-
-❯ grb origin/main
-
-Current branch fix/enbl-1533-fix-rds-scp-restrictions is up to date.
-
-Note, there is some nuance to deleting PRs and branches at the same
-time. There can be github actions that run on PR close events that
-expect the branch to still be present. It is generally better to trigger
-github actions based on branch behaviors.
+task, but running them won't hurt. See my `gj` alias for the lazy way.
 
 ### Oops! I Named My Branch Wrong. How do I rename it?
 
-Branches at exampleco follow standards that enable automation. Precise
-naming is important. Here's how you can rename a branch both local and
+Here's how you can rename a branch both local and
 remote.
 
-1. Checkout old branch
-2. Rename old to new
-3. Push the new branch to remote
-4. Delete the old branch from remote
+1. Rename old to new
+2. Push the new branch to remote
+3. Delete the old branch from remote
 
 ```bash
 git branch -m oldname newname
@@ -227,434 +224,103 @@ people or after github actions run. But sometimes you forget.
 Most of the time you can stash your changes, pull and then un-stash
 them.
 
+```bash
 gsta
-
 gl
-
 gstp
+```
 
 ### Oops! I did my Pull Request Wrong. How do I fix it?
 
 This one is pretty straight forward. You can edit PRs with the gh
-command line. Pick the command you need.
+command line or UI. Pick the command you need.
 
-gh pr edit \--title new-title
-
-gh pr edit \--body new-body
-
-gh pr edit \--base new-branch
-
-### Creating a new GH repo from a local folder
-
-Change \--private to \--internal or \--public as needed.
-
-1. Make folder
-
-2. git init
-
-3. gh create repo
-
-- Org is probably examplecoSoftware (but might be another org or your
- username as org)
-
-- Repo should be the same name as the foldre
-
-mkdir FOLDER
-
-cd FOLDER
-
-git init
-
-echo \"hello world\" \> README.md
-
-gav .
-
-gcmsg \"first commit\"
-
-gh repo create \--private \--source=. \--remote=origin \--description
-\"something something\" \--push ORG/REPO
-
-### Deleting a GH Repo
-
-gh repo delete {repo} \--yes
-
-rm -rf \* .\*
+```bash
+gh pr edit --title new-title
+gh pr edit --body new-body
+gh pr edit --base new-branch
+```
 
 ### Generating a .gitignore using the toptal api and gitignore ohmyzsh plugin
 
-gi terraform \> .gitignore
+This makes generating `.gitignore` files a breeze.
+<https://www.toptal.com/developers/gitignore>
+
+I have a function in my `.zshrc` to fetch them with `curl`
+
+```bash
+gi () {
+  curl -fLw '\n' https://www.toptal.com/developers/gitignore/api/"${(j:,:)@}"
+}
+```
+
+I always do macos and windows to avoid stupid OS files
+
+```bash
+gi macos > .gitignore
+gi windows >> .gitignore
+gi terraform >> .gitignore
+```
 
 ### Switching between git and github accounts (like work and personal)
 
-This assumes you used separate github accounts for work and personal
-(vs. having your personal assigned to exampleco groups).
+This assumes you use separate github accounts for work and personal (vs. having
+your personal assigned to exampleco groups). I encourage that for reasons.
 
-For git, you can use, \[includeif\] clauses in your \~/.gitconfig file.
-Then have a personal and work config file that will be selected based on
-the working directory.
+Github made this a lot easier recently. See [gh auth login](https://cli.github.com/manual/gh_auth_login)
+and [gh auth switch](https://cli.github.com/manual/gh_auth_switch).
 
-.gitconfig
+Then I have two aliases to switch identities and working directories fast
 
-\[includeIf \"gitdir:\~/Projects/personal/\"\]
+```bash
+alias work="jump work && gh auth switch --user jim-weller"
+alias personal="jump personal && gh auth switch --user jimweller"
+```
 
-path = \~/.gitconfig-personal
+For git, you can use, `[includeif]` and `[credential]` clauses in your
+`~/.gitconfig` file. Then have a personal and work config file that will be
+selected based on the working directory.
 
-\[includeIf \"gitdir:\~/Projects/work/\"\]
+```bash
+[includeIf "gitdir:~/Projects/personal/"]
+  path = ~/.gitconfig-personal
 
-path = \~/.gitconfig-work
+[includeIf "gitdir:~/Projects/work/"]
+  path = ~/.gitconfig-work
 
-.gitconfig-work
+[credential "https://github.com/ExampleCoOrgOne"]
+  username = jim-weller
 
-\[user\]
+[credential "https://github.com/ExampleCoOrgTwo"]
+  username = jim-weller
 
-name = \"Jim Weller\"
-
-email = jim.weller@exampleco.com
-
-signingkey = 38170000000001072
-
-\[credential \"https://github.com\"\]
-
-username = jim-weller
+[credential "https://github.com/jimweller"]
+  username = jimweller
+```
 
 .gitconfig-personal
 
-\[user\]
-
-name = \"Jim Weller\"
-
-email = jim.weller@domain.com
-
-signingkey = 7E91BDDAC18B0000
-
-\[credential \"https://github.com\"\]
-
-username = jimweller
-
-After you configure the .gitconfig, you'll need to do git init in each
-of work and personal . This is just to trick git into using your
-identity when in that folder, like for checking out a new repo.
-
-❯ cd \~/Projects/personal
-
-❯ git init
-
-Initialized empty Git repository in
-/Users/jim.weller/Projects/personal/.git/
-
-❯ cd \~/Projects/work
-
-❯ git init
-
-Initialized empty Git repository in
-/Users/jim.weller/Projects/work/.git/
-
-You can verify your setup with git config.
-
-❯ cd \~/Projects/work
-
-❯ git config \--get user.email
-
-jim.weller@exampleco.com
-
-❯ cd \~/Projects/personal
-
-❯ git config \--get user.email
-
-jweller@personal.com
-
-For gh, you create a subcommand alias that swaps out the hosts.yml file
-and authenticates using a gh command. This is in the \~/.config/gh
-folder.
-
-host.yml.personal
-
-\[user\]
-
-github.com:
-
-user: jimweller
-
-git_protocol: https
-
-oauth_token: ghp_7ABCDT9mMJIgE0000000000000000000000
-
-hosts.yml.work
-
-github.com:
-
-user: jim-weller
-
-git_protocol: https
-
-oauth_token: ghp_7W9PPT9mMJIgE0000000000000000000000
-
-config.yml
-
-\# Aliases allow you to create nicknames for gh commands
-
-aliases:
-
-personal: \'!cp \~/.config/gh/hosts.yml.personal \~/.config/gh/hosts.yml
-&& gh auth status\'
-
-work: \'!cp \~/.config/gh/hosts.yml.work \~/.config/gh/hosts.yml && gh
-auth status\'
-
-Now, we switch to a personal account. git will switch by virtue of the
-includeif and the directory. gh will switch by running the alias
-command.
-
-cd \~/Projects/personal/REPO
-
-gh personal
-
-### Configuring a GH repo the exampleco exampledept way
-
-This configures a repo to match the team git standards. It does not
-include the branch protection rule that must be done in the web UI or
-with the GH API (see below).
-
-owner=examplecoSoftware
-
-repo=some-github-repo
-
-branch=main
-
-teamtopic=team-cloud-enablement
-
-gh repo edit \\
-
-\--default-branch main \\
-
-\--enable-squash-merge \\
-
-\--enable-merge-commit=false \\
-
-\--enable-rebase-merge=false \\
-
-\--enable-auto-merge=true \\
-
-\--enable-discussions=true \\
-
-\--enable-issues=true \\
-
-\--add-topic \$teamtopic \\
-
-\--enable-wiki=false \\
-
-\--description \"\$owner \$repo \$teamtopic\" \\
-
-\$owner/\$repo
-
-### Github API Wizardry with GraphQL
-
-Get a repository id
-
-owner=examplecoSoftware
-
-repo=tfsandbox
-
-gh api graphql -f
-query=\'{repository(owner:\"\'\$owner\'\",name:\"\'\$repo\'\"){id}}\' -q
-.data.repository.id
-
-Query
-[BranchProtectionRule](https://docs.github.com/en/graphql/reference/objects#branchprotectionrule)s
-
-owner=examplecoSoftware
-
-repo=tfsandbox
-
-gh api graphql -F owner=\${owner} -F repo=\${repo} -f query=\'
-
-query (\$owner: String!, \$repo: String!) {
-
-repository(owner: \$owner, name: \$repo) {
-
-branchProtectionRules(first: 100) {
-
-nodes {
-
-matchingRefs(first: 100) {
-
-nodes {
-
-name
-
-}
-
-}
-
-id
-
-allowsDeletions
-
-allowsForcePushes
-
-blocksCreations
-
-dismissesStaleReviews
-
-isAdminEnforced
-
-lockAllowsFetchAndMerge
-
-lockBranch
-
-pattern
-
-requireLastPushApproval
-
-requiredApprovingReviewCount
-
-requiredDeploymentEnvironments
-
-requiresApprovingReviews
-
-requiresCodeOwnerReviews
-
-requiresCommitSignatures
-
-requiresConversationResolution
-
-requiresDeployments
-
-requiresLinearHistory
-
-requiresStatusChecks
-
-requiresStrictStatusChecks
-
-restrictsPushes
-
-restrictsReviewDismissals
-
-}
-
-}
-
-}
-
-}\'
-
-[CreateBranchProtectionRule](https://docs.github.com/en/graphql/reference/mutations#createbranchprotectionrule)
-that matches the team git standards
-
-owner=examplecoSoftware
-
-repo=tfsandbox
-
-repositoryId=\"\$(gh api graphql -f
-query=\'{repository(owner:\"\'\$owner\'\",name:\"\'\$repo\'\"){id}}\' -q
-.data.repository.id)\"
-
-gh api graphql -f query=\'
-
-mutation(\$repositoryId:ID!,\$branch:String!) {
-
-createBranchProtectionRule(input: {
-
-repositoryId: \$repositoryId
-
-pattern: \$branch
-
-requiresCommitSignatures: true
-
-requiresApprovingReviews: true
-
-dismissesStaleReviews: true
-
-requiresConversationResolution: true
-
-requiresCodeOwnerReviews: true
-
-requiresLinearHistory: true
-
-requireLastPushApproval: true
-
-}) { clientMutationId }
-
-}\' -f repositoryId=\"\$repositoryId\" -f branch=main
-
-Get just the IDs of BranchProtectionRules
-
-owner=examplecoSoftware
-
-repo=tfsandbox
-
-gh api graphql -F owner=\${owner} -F repo=\${repo} -f query=\'
-
-query(\$owner: String!,\$repo: String!){
-
-repository(owner: \$owner, name: \$repo) {
-
-branchProtectionRules(first: 100) {
-
-nodes {
-
-id
-
-}
-
-}
-
-}
-
-}\' -q \'.data.repository.branchProtectionRules.nodes.\[\].id\'
-
-Update a BranchProtectionRule. Here we turn off signed commits (bad!).
-You'll need the rule ID from the above example.
-
-ruleid=BPR_kwDOKuu2084CwKHJ
-
-gh api graphql -F ruleid=\$ruleid -f query=\'
-
-mutation( \$ruleid: ID!) {
-
-updateBranchProtectionRule(input:{
-
-branchProtectionRuleId: \$ruleid
-
-requiresCommitSignatures: false }) {
-
-clientMutationId
-
-}
-
-}\'
-
-Delete a BranchProtectionRule.You'll need the rule ID from the above
-example.
-
-ruleid=BPR_kwDOKuu2084CwJnS
-
-gh api graphql -F ruleid=\$ruleid -f query=\'
-
-mutation( \$ruleid: ID!) {
-
-deleteBranchProtectionRule(input:{
-
-branchProtectionRuleId: \$ruleid }) {
-
-clientMutationId
-
-}
-
-}\'
-
-### Sample Code
-
-You can see demonstrations of many of the tips and tricks above in the
-team's git utilities repository.
-
-<https://github.com/examplecoSoftware/enbl-git-utils>
-
-You can see some github actions to accomplish various pipeline tasks in
-the team's collection of demo repositories which are lableled with
-\[topic=team-cloud-enablement topic=demo\]
-
-<https://github.com/orgs/examplecoSoftware/repositories?q=topic%3Ateam-cloud-enablement+topic%3Ademo>
+```bash
+[user]
+  name = "Jim Weller"
+  email = jim.weller@personal.com
+  signingkey = ABCDEF123456
+
+[credential "https://github.com"]
+  username = jimweller
+```
+
+.gitconfig-work
+
+```bash
+[user]
+  name = "Jim Weller"
+  email = jim.weller@exampleco.com
+  signingkey = ABCDEF123456
+
+[credential "https://github.com"]
+  username = jim-weller
+```
 
 ### Awesome Actions
 
@@ -662,65 +328,42 @@ Github actions are a way to run various programs in a runner
 environment. There is a huge ecosystem of off the shelf actions. And
 it's relatively easy to write your own actions.
 
-Here's a list of powerful ones that strongly align with our team's
-tooling, standards and practices.
+- **github** has some good ([off the shelf actions](https://github.com/actions)
+- **sdras** has an [amazing list](https://github.com/sdras/awesome-actions)
+
+Here's a list of useful ones that I use often.
 
 - **actions/checkout** - baseline gh action to checkout a repo for
  other actions in the runner
-
 - **aws-actions/configure-aws-credentials** - establish AWS session
  credentials in the runner
-
 - **hashicorp/setup-terraform** - install terraform in the runner
-
-- **bridgecrewio/yor-action** - automated infrastructure tagging
-
+- **opentofu/setup-opentofu** - install opentofu in the runner
+- **bridgecrewio/yor-action** - automated infrastructure tagging. It's cool because it can include the git commit hash which makes finding changes a breeze.
 - **cycjimmy/semantic-release-action** - Use conventional commits to
  automatically generate releases and release tags.
-
 - **wagoid/commitlint-github-action** - assure that git commits adhere
  to standards
-
 - **lekterable/branchlint-action** - assure that branch naming adheres
  to standards
-
 - **amannn/action-semantic-pull-request** - assure pull request naming
  adheres to standards
-
-- **stefanzweifel/git-auto-commit-action** - commit changes from
- within a PR
-
 - **crazy-max/ghaction-import-gpg** - bring a GPG key into the
  workflow to allow an action to do signed commits.
-
 - **fastify/github-action-merge-dependabot** - an action that
- automatically handled the logic for detecting and merging a PR from
+ automatically handles the logic for detecting and merging a PR from
  dependabot.
-
 - **github/actions-oidc-debugger** - a way to see the details of a
  JWT. Useful for customizing claimes/subjects when doing AWS+Github
  OIDC.
-
 - **actions/upload-artifact** and **actions/download-artifact** -
  allows you to pass files between workflow steps (like a tfplan from
  tf plan to apply)
-
 - **peter-evans/create-or-update-comment** - add comments to PR's is
  useful to give feedback and to display outputs from workflows
 
-### Links
+### Random Links
 
-- <https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification> -
- All the pages about signing commits and managing GPG keys
+- <https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification> All the pages about signing commits and managing GPG keys
 
-- <https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits> -
- Sign commits automatically
-
-- <https://gist.github.com/yermulnik/017837c01879ed3c7489cc7cf749ae47> -
- Switching between github profiles
-
-- <https://ohmyz.sh/>
-
-- <https://github.com/romkatv/powerlevel10k>
-
-- <https://www.toptal.com/developers/gitignore>
+- <https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits> - Sign commits automatically
