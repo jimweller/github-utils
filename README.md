@@ -174,7 +174,7 @@ editor: code --wait
 ### Standard GH PR Workflow
 
 This is "normal" trunk based PR workflow for working with an existing repository
-following some widespreadS git standards. Keep all your {text strings} below
+following some widespread git standards. Keep all your {text strings} below
 lower case. There's other branching strategies, but this has been the most
 common in workplaces in my experience. Adjust for your type of PR formatting and
 merge method.
