@@ -139,7 +139,7 @@ To use vscode with git, edit your .gitconfig
   branch = false
 ```
 
-These are the vscode extensions I used specific to git and github
+These are the vscode extensions I use specific to git and github
 
 ```bash
 > code --list-extensions | grep -i git
