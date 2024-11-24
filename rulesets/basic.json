@@ -1,0 +1,26 @@
+{
+  "id": 2726512,
+  "name": "strict",
+  "target": "branch",
+  "source_type": "Repository",
+  "source": "jimweller/github-utils",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    }
+  ],
+  "bypass_actors": [],
+  "current_user_can_bypass": "never"
+}

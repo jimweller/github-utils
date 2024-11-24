@@ -1,7 +1,8 @@
 # Git Utilities
 
 This is a collection of scripts and notes about using git and github. Its aim is
-to reduce toil and to align with the team git standards.
+to reduce toil and to align with the teams' git standards. It's based on MacOS
+and ohmyzsh aliases. So, you might need to do some translation.
 
 - gh-bpr-create.sh - create branch protection rule (opinionated)
 - gh-bpr-delete.sh - delete branch protection rule
@@ -15,8 +16,21 @@ to reduce toil and to align with the team git standards.
 - gh-repo-perms-teams.sh - Add/remove team permissions on a repository
 - gh-repo-perms-user.sh - Add/remove user permissions on a repository
 - gh-tag-advance.sh - Move a tag from one commit to another. Useful for testing release strategies.
+- gh-ruleset-export.sh - Export an existing ruleset as json (to stdout)
+- gh-ruleset-import.sh - Import a ruleset from a json file to a repository
+- gh-ruleset-delete.sh - Remove a ruleset from a repository
+- rulesets/ - sample ruleset json files
+
+## Gh Exensions
 
 See also `gh extension` for handy github plugins
+
+```bash
+NAME             REPO                      VERSION
+gh notify        meiji163/gh-notify        556df2ee
+gh open          ream88/gh-open            e30a6172
+gh subscription  poretsky/gh-subscription  de6f865c
+```
 
 ## Jim's Cheat Sheet
 
