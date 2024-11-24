@@ -327,7 +327,7 @@ Github actions are a way to run various programs in a runner
 environment. There is a huge ecosystem of off the shelf actions. And
 it's relatively easy to write your own actions.
 
-- **github** has some good ([off the shelf actions](https://github.com/actions)
+- **github** has some good [off the shelf actions](https://github.com/actions)
 - **sdras** has an [amazing list](https://github.com/sdras/awesome-actions)
 
 Here's a list of useful ones that I use often.
