@@ -242,7 +242,7 @@ gh pr edit --body new-body
 gh pr edit --base new-branch
 ```
 
-### Generating a .gitignore using the toptal api and gitignore ohmyzsh plugin
+### Generating a .gitignore using the toptal api
 
 This makes generating `.gitignore` files a breeze.
 <https://www.toptal.com/developers/gitignore>
