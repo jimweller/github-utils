@@ -205,7 +205,7 @@ gf --prune
 
 Where
 
-- {type} is one of fix, feat or release
+- {type} is one of fix, feat, release, chore, etc.
 - {jira-card} is the name of a card like enbl-304
 - {more-text-description} is narrative about what you are doing like update thing-one to make thing-two do thing-three
 
@@ -243,7 +243,7 @@ branch, right!?).
 It never hurts to do a git status or git pull when working with other
 people or after github actions run. But sometimes you forget.
 
-Most of the time you can stash your changes, pull and then un-stash
+Most of the time you can stash your changes, pull or restore and then un-stash
 them.
 
 ```bash
@@ -276,10 +276,10 @@ gi () {
 }
 ```
 
-I always do macos and windows to avoid stupid OS files
+I always do macos, windows and linux to avoid stupid OS files getting commited
 
 ```bash
-gi macos,windows,terraform > .gitignore
+gi macos,windows,linux,terraform > .gitignore
 ```
 
 ### Switching between git and github accounts (like work and personal)
@@ -382,7 +382,7 @@ Here's a list of useful ones that I use often.
 - **peter-evans/create-or-update-comment** - add comments to PR's is
  useful to give feedback and to display outputs from workflows
 
-### Random Links
+## Random Links
 
 - <https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification> All the pages about signing commits and managing GPG keys
 
