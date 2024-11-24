@@ -115,15 +115,17 @@ To use vscode with git, edit your .gitconfig
 
 ```bash
 [core]
-  editor = code --wait
+    editor = code --wait
 
 [mergetool "vscodeM"]
     cmd = code --wait $MERGED
+
 [merge]
     tool = vscodeM
 
 [difftool "vscodeD"]
     cmd = code --wait --diff $LOCAL $REMOTE
+
 [diff]
     tool = vscodeD
 
@@ -135,6 +137,22 @@ To use vscode with git, edit your .gitconfig
 
 [pager]
   branch = false
+```
+
+These are the vscode extensions I used specific to git and github
+
+```bash
+> code --list-extensions | grep -i git
+bierner.github-markdown-preview
+bierner.markdown-preview-github-styles
+donjayamanne.githistory
+github.codespaces
+github.copilot
+github.copilot-chat
+github.remotehub
+github.vscode-github-actions
+github.vscode-pull-request-github
+mhutchie.git-graph
 ```
 
 ### What editor gh should run when creating commits, issues, pull requests, etc
