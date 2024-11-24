@@ -258,9 +258,7 @@ gi () {
 I always do macos and windows to avoid stupid OS files
 
 ```bash
-gi macos > .gitignore
-gi windows >> .gitignore
-gi terraform >> .gitignore
+gi macos,windows,terraform > .gitignore
 ```
 
 ### Switching between git and github accounts (like work and personal)
