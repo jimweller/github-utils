@@ -227,6 +227,28 @@ git push origin :oldname
 git push origin newname
 ```
 
+### Deleting Branches, Remote and Local
+
+```bash
+git push -d <remote_name> <branchname>
+git branch -d <branchname>
+```
+
+Example
+
+```bash
+git push -d origin my-branch
+git branch -d my-branch
+```
+
+### Workflows That Only Exist in Branches
+
+This is handy for debugging small sections of long-running workflows or for
+running workflows where you need access to the permissions OIDC grants the
+repository.
+
+<https://github.com/jimweller/lab-github-pr-triggers?tab=readme-ov-file#ephemeral-or-pre-prod-branch-only-workflows>
+
 ### Oops! I Named My Commit Wrong. How do I rename it?
 
 This one is hairy. It depends on if it is the last commit or an older
