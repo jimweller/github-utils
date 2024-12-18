@@ -21,10 +21,10 @@ Repository Editing
 
 Team Management
 
-- gh-team-create.sh - Add a team in an organization with optional user list
-- gh-team-delete.sh - Remove a team in an organization
-- gh-team-member-add.sh - Add user(s) to an existing team
-- gh-team-member-delete.sh - Remover user(s) from a team
+- **gh-team-create.sh** - Add a team in an organization with optional user list
+- **gh-team-delete.sh** - Remove a team in an organization
+- **gh-team-member-add.sh** - Add user(s) to an existing team
+- **gh-team-member-delete.sh** - Remover user(s) from a team
 
 Branch Protection with Rulesets (new)
 
