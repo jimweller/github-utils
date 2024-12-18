@@ -19,6 +19,13 @@ Repository Editing
 - **gh-repo-perms-user.sh** - Add/remove user permissions on a repository
 - **gh-tag-advance.sh** - Move a tag from one commit to another. Useful for testing release strategies.
 
+Team Management
+
+- gh-team-create.sh - Add a team in an organization with optional user list
+- gh-team-delete.sh - Remove a team in an organization
+- gh-team-member-add.sh - Add user(s) to an existing team
+- gh-team-member-delete.sh - Remover user(s) from a team
+
 Branch Protection with Rulesets (new)
 
 - **gh-ruleset-export.sh** - Export an existing ruleset as json (to stdout)
