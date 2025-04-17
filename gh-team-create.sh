@@ -47,12 +47,27 @@ else
     fi
 fi
 
+EXECUTOR=$(gh api -H "Accept: application/vnd.github.v3+json" "/user" --jq '.login')
+
+if [ -z "$EXECUTOR" ]; then
+    echo "error: unable to determine the executor. Cannot proceed with team creation."
+    exit 1
+fi
+
 gh api --method POST \
   -H "Accept: application/vnd.github.v3+json" \
   "/orgs/$ORG/teams" \
-  -f name="$TEAM" \
-  ${PARENT_ID:+-f parent_team_id="$PARENT_ID"} \
-  -f privacy="$VISIBILITY"
+  --input <(jq -n \
+    --arg name "$TEAM" \
+    --arg privacy "$VISIBILITY" \
+    --argjson parent_team_id ${PARENT_ID:-null} \
+    '{name: $name, privacy: $privacy, parent_team_id: $parent_team_id}')
+
+# Add the script executor as a maintainer
+gh api --method PUT \
+  -H "Accept: application/vnd.github.v3+json" \
+  "/orgs/$ORG/teams/$TEAM/memberships/$EXECUTOR" \
+  -f role=maintainer
 
 USERS_ADDED=""
 
@@ -64,4 +79,4 @@ for USER in "$@"; do
   USERS_ADDED+="$USER "
 done
 
-echo "Team '$TEAM' created under parent '$PARENT' in organization '$ORG' with visibility '$VISIBILITY'. Users added: $USERS_ADDED"
+echo "Team '$TEAM' created under parent '$PARENT' in organization '$ORG' with visibility '$VISIBILITY'. Users added: $USERS_ADDED. Maintainer: $EXECUTOR"
