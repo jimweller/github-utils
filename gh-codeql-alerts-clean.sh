@@ -25,7 +25,7 @@ if [ ${#REPOS[@]} -eq 0 ]; then echo "error: no repo specified"; usage; exit 1; 
 for REPO in "${REPOS[@]}"; do
   echo "Checking repo: ${REPO}"
   RESULTS=$(gh api "/repos/${OWNER}/${REPO}/code-scanning/analyses" \
-    --paginate -F per_page=100 \
+    --paginate \
     -H "Accept: application/vnd.github+json" 2>/dev/null || echo "")
 
   if [ -z "$RESULTS" ] || ! echo "$RESULTS" | jq -e 'type == "array"' >/dev/null 2>&1; then
@@ -34,8 +34,10 @@ for REPO in "${REPOS[@]}"; do
   fi
 
   URLS=($(echo "$RESULTS" | jq -r '.[] | select(.analysis_key | contains("dynamic")) | select(.deletable == true) | .url'))
+  COUNT=${#URLS[@]}
+  echo "Deletable dynamic analysis records: $COUNT"
 
-  [ ${#URLS[@]} -eq 0 ] && continue
+  [ $COUNT -eq 0 ] && continue
 
   for URL in "${URLS[@]}"; do
     gh api --method DELETE "${URL}?confirm_delete=true" \
